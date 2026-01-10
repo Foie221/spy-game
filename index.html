@@ -2,46 +2,47 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Шпион</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <title>Spy Game</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Telegram Web App -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-<div class="card" id="setup">
-  <h1>Игра «Шпион»</h1>
+<h1>🕵️ Игра «Шпион»</h1>
 
-  <label>Количество игроков</label>
-  <input type="number" id="players" min="3" max="20" value="5">
-
-  <label>Количество шпионов</label>
-  <input type="number" id="spies" min="1" max="10" value="1">
-
-  <button id="startBtn">Начать игру</button>
+<div class="card">
+  <button onclick="createGame()">Создать игру</button>
 </div>
 
-<div class="card hidden" id="game">
-  <div id="waitScreen">
-    <h2 id="playerTitle"></h2>
-    <p>Передай телефон следующему игроку</p>
-    <button id="showRoleBtn">Показать роль</button>
-  </div>
-
-  <div id="roleScreen" class="hidden">
-    <div class="role" id="roleText"></div>
-    <button id="hideRoleBtn">Скрыть и передать</button>
-  </div>
+<div class="card">
+  <input id="joinCode" placeholder="Код комнаты">
+  <button onclick="joinGame()">Войти</button>
 </div>
 
-<div class="card hidden" id="end">
-  <h1>Роли розданы</h1>
-  <button onclick="location.reload()">Новая игра</button>
+<div id="lobby" class="card hidden">
+  <p>Код комнаты:</p>
+  <label>Пак локаций:</label>
+<select id="locationPack">
+  <option value="normal">Обычный</option>
+  <option value="18plus">18+</option>
+</select>
+  <h2 id="roomCode"></h2>
+
+  <label>Количество шпионов:</label>
+  <input id="spyCount" type="number" min="1" value="1">
+
+  <h3>Игроки:</h3>
+  <ul id="playersList"></ul>
+
+  <button onclick="startGame()">Начать игру</button>
 </div>
 
+<div id="roleScreen" class="card hidden">
+  <h2 id="roleText"></h2>
+  <p id="locationText"></p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
