@@ -1,92 +1,108 @@
-// Telegram (не ломает браузер)
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.expand();
   tg.ready();
 }
 
-let totalPlayers = 0;
-let spyCount = 0;
-let currentPlayer = 1;
-let spies = [];
-let currentLocation = "";
+// ===== DOM элементы =====
+const playersInput = document.getElementById("players");
+const spiesInput = document.getElementById("spies");
+const roomCode = document.getElementById("roomCode");
 
+const codeInput = document.getElementById("codeInput");
+const playerIndex = document.getElementById("playerIndex");
+
+const create = document.getElementById("create");
+const join = document.getElementById("join");
+const roleScreen = document.getElementById("roleScreen");
+const roleText = document.getElementById("roleText");
+
+// ===== ДАННЫЕ =====
 const locations = [
-  "Невский проспект",
-  "Дворцовая площадь",
-  "Эрмитаж",
-  "Казанский собор",
   "Метро Купчино",
   "ТЦ Галерея",
   "Золотое Яблоко",
   "Рив Гош",
-  "Славянка",
-  "Пушкин",
-  "Катина квартира"
+  "Ночной клуб",
+  "Бар на Невском",
+  "Секретная квартира",
+  "Стрип-клуб"
 ];
 
-// Привязка кнопок ПОСЛЕ загрузки DOM
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("startBtn").onclick = startGame;
-  document.getElementById("showRoleBtn").onclick = revealRole;
-  document.getElementById("hideRoleBtn").onclick = hideRole;
-});
+// ===== УТИЛИТЫ =====
+function hashCode(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
 
-function startGame() {
-  totalPlayers = Number(document.getElementById("players").value);
-  spyCount = Number(document.getElementById("spies").value);
+function seededRandom(seed) {
+  return () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+}
 
-  if (spyCount >= totalPlayers) {
-    alert("Шпионов должно быть меньше, чем игроков");
+// ===== СОЗДАНИЕ КОМНАТЫ =====
+function createRoom() {
+  const players = Number(playersInput.value);
+  const spies = Number(spiesInput.value);
+
+  if (!players || !spies || spies >= players) {
+    alert("Проверь количество игроков и шпионов");
     return;
   }
 
-  spies = [];
-  currentPlayer = 1;
+  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-  while (spies.length < spyCount) {
-    const r = Math.floor(Math.random() * totalPlayers) + 1;
-    if (!spies.includes(r)) spies.push(r);
-  }
+  localStorage.setItem(code, JSON.stringify({
+    players,
+    spies
+  }));
 
-  currentLocation = locations[Math.floor(Math.random() * locations.length)];
-
-  document.getElementById("setup").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-
-  showWaitScreen();
+  roomCode.textContent = "КОД КОМНАТЫ: " + code;
+  roomCode.classList.remove("hidden");
 }
 
-function showWaitScreen() {
-  const wait = document.getElementById("waitScreen");
-  const role = document.getElementById("roleScreen");
+// ===== ПОКАЗ РОЛИ =====
+function showRole() {
+  const code = codeInput.value.trim().toUpperCase();
+  const index = Number(playerIndex.value) - 1;
 
-  document.getElementById("playerTitle").innerText = `Игрок ${currentPlayer}`;
+  const data = JSON.parse(localStorage.getItem(code));
 
-  role.classList.add("hidden");
-  wait.classList.remove("hidden");
-}
-
-function revealRole() {
-  const roleText = document.getElementById("roleText");
-
-  if (spies.includes(currentPlayer)) {
-    roleText.innerHTML = `Ты <span class="spy">ШПИОН</span>`;
-  } else {
-    roleText.innerHTML = `Локация:<br><span class="location">${currentLocation}</span>`;
+  if (!data || index < 0 || index >= data.players) {
+    alert("Неверный код или номер игрока");
+    return;
   }
 
-  document.getElementById("waitScreen").classList.add("hidden");
-  document.getElementById("roleScreen").classList.remove("hidden");
+  const rand = seededRandom(hashCode(code));
+  const roles = Array(data.players).fill("civil");
+
+  let placed = 0;
+  while (placed < data.spies) {
+    const i = Math.floor(rand() * data.players);
+    if (roles[i] !== "spy") {
+      roles[i] = "spy";
+      placed++;
+    }
+  }
+
+  const location = locations[Math.floor(rand() * locations.length)];
+
+  create.classList.add("hidden");
+  join.classList.add("hidden");
+  roleScreen.classList.remove("hidden");
+
+  roleText.innerHTML = roles[index] === "spy"
+    ? `Ты <span class="spy">ШПИОН</span>`
+    : `Локация:<br><span class="location">${location}</span>`;
 }
 
-function hideRole() {
-  currentPlayer++;
-
-  if (currentPlayer > totalPlayers) {
-    document.getElementById("game").classList.add("hidden");
-    document.getElementById("end").classList.remove("hidden");
-  } else {
-    showWaitScreen();
-  }
+// ===== СБРОС =====
+function reset() {
+  location.reload();
 }
