@@ -3,46 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <title>Spy Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-<h1>🕵️ Игра «Шпион»</h1>
+<div class="container">
 
-<div class="card">
-  <button onclick="createGame()">Создать игру</button>
+  <!-- СОЗДАНИЕ -->
+  <div class="card" id="create">
+    <h1>SPY</h1>
+
+    <input id="players" type="number" min="3" placeholder="Количество игроков">
+    <input id="spies" type="number" min="1" placeholder="Количество шпионов">
+
+    <button onclick="createRoom()">Создать комнату</button>
+
+    <div class="code hidden" id="roomCode"></div>
+  </div>
+
+  <!-- ВХОД -->
+  <div class="card" id="join">
+    <h2>Войти в игру</h2>
+
+    <input id="codeInput" placeholder="Код комнаты">
+    <input id="playerIndex" type="number" min="1" placeholder="Номер игрока">
+
+    <button onclick="showRole()">Показать роль</button>
+  </div>
+
+  <!-- РОЛЬ -->
+  <div class="card hidden" id="roleScreen">
+    <div id="roleText"></div>
+    <button onclick="reset()">Готово</button>
+  </div>
+
 </div>
 
-<div class="card">
-  <input id="joinCode" placeholder="Код комнаты">
-  <button onclick="joinGame()">Войти</button>
-</div>
-
-<div id="lobby" class="card hidden">
-  <p>Код комнаты:</p>
-  <label>Пак локаций:</label>
-<select id="locationPack">
-  <option value="normal">Обычный</option>
-  <option value="18plus">18+</option>
-</select>
-  <h2 id="roomCode"></h2>
-
-  <label>Количество шпионов:</label>
-  <input id="spyCount" type="number" min="1" value="1">
-
-  <h3>Игроки:</h3>
-  <ul id="playersList"></ul>
-
-  <button onclick="startGame()">Начать игру</button>
-</div>
-
-<div id="roleScreen" class="card hidden">
-  <h2 id="roleText"></h2>
-  <p id="locationText"></p>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
