@@ -4,19 +4,20 @@ if (tg) {
   tg.ready();
 }
 
-// DOM
-const playersInput = document.getElementById("players");
-const spiesInput = document.getElementById("spies");
+let players = 4;
+let spies = 1;
+let selectedCategory = "SPB";
+
+const playersValue = document.getElementById("playersValue");
+const spiesValue = document.getElementById("spiesValue");
 const roomCode = document.getElementById("roomCode");
 const codeInput = document.getElementById("codeInput");
-const playerIndex = document.getElementById("playerIndex");
 
 const create = document.getElementById("create");
 const join = document.getElementById("join");
 const roleScreen = document.getElementById("roleScreen");
 const roleText = document.getElementById("roleText");
 
-// Категории
 const locationGroups = {
   SPB: ["Невский проспект","Дворцовая площадь","Эрмитаж","Исаакиевский собор","Крестовский остров","Казанский собор","Летний сад","Московский вокзал"],
   CLUBS: ["Клуб «Виновница»","Клуб «Москва»","Клуб «Доски»","Контакт бар"],
@@ -29,9 +30,7 @@ const locationGroups = {
   CLOTHES: ["ZARA","Lime","H&M","Pull&Bear","Bershka","Stradivarius","New Yorker"]
 };
 
-let selectedCategory = "SPB";
-
-// выбор категории
+// категории
 document.querySelectorAll(".cat").forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll(".cat").forEach(b => b.classList.remove("active"));
@@ -39,6 +38,19 @@ document.querySelectorAll(".cat").forEach(btn => {
     selectedCategory = btn.dataset.cat;
   };
 });
+
+// счетчики
+function changeValue(type, delta) {
+  if (type === "players") {
+    players = Math.max(3, players + delta);
+    if (spies >= players) spies = players - 1;
+  } else {
+    spies = Math.max(1, spies + delta);
+    if (spies >= players) spies = players - 1;
+  }
+  playersValue.textContent = players;
+  spiesValue.textContent = spies;
+}
 
 // utils
 function hashCode(str) {
@@ -59,17 +71,8 @@ function seededRandom(seed) {
 
 // create room
 function createRoom() {
-  const players = Number(playersInput.value);
-  const spies = Number(spiesInput.value);
-
-  if (!players || !spies || spies >= players) {
-    alert("Проверь числа");
-    return;
-  }
-
   const seed = Math.random().toString(36).substring(2, 6).toUpperCase();
   const code = `SPY-${players}-${spies}-${selectedCategory}-${seed}`;
-
   roomCode.textContent = "КОД КОМНАТЫ:\n" + code;
   roomCode.classList.remove("hidden");
 }
@@ -77,11 +80,9 @@ function createRoom() {
 // show role
 function showRole() {
   const raw = codeInput.value.trim().toUpperCase();
-  const index = Number(playerIndex.value) - 1;
-
   const parts = raw.split("-");
-  if (parts.length !== 5 || parts[0] !== "SPY") {
-    alert("Неверный код комнаты");
+  if (parts.length !== 5) {
+    alert("Неверный код");
     return;
   }
 
@@ -90,10 +91,13 @@ function showRole() {
   const category = parts[3];
   const seed = parts[4];
 
-  if (index < 0 || index >= players) {
-    alert("Неверный номер игрока");
+  const userId = tg?.initDataUnsafe?.user?.id;
+  if (!userId) {
+    alert("Открой через Telegram");
     return;
   }
+
+  const playerIndex = hashCode(userId.toString()) % players;
 
   const rand = seededRandom(hashCode(seed));
   const roles = Array(players).fill("civil");
@@ -115,7 +119,7 @@ function showRole() {
   roleScreen.classList.remove("hidden");
 
   roleText.innerHTML =
-    roles[index] === "spy"
+    roles[playerIndex] === "spy"
       ? `Ты <span class="spy">ШПИОН</span>`
       : `Локация:<br><span class="location">${location}</span>`;
 }
