@@ -15,8 +15,23 @@
   <div class="card" id="create">
     <h1>SPY</h1>
 
-    <input id="players" type="number" min="3" placeholder="Количество игроков">
-    <input id="spies" type="number" min="1" placeholder="Количество шпионов">
+    <div class="counter">
+      <span>Игроки</span>
+      <div>
+        <button onclick="changeValue('players', -1)">−</button>
+        <span id="playersValue">4</span>
+        <button onclick="changeValue('players', 1)">+</button>
+      </div>
+    </div>
+
+    <div class="counter">
+      <span>Шпионы</span>
+      <div>
+        <button onclick="changeValue('spies', -1)">−</button>
+        <span id="spiesValue">1</span>
+        <button onclick="changeValue('spies', 1)">+</button>
+      </div>
+    </div>
 
     <div class="categories">
       <div class="cat active" data-cat="SPB">🏛 СПб</div>
@@ -35,9 +50,8 @@
   </div>
 
   <div class="card" id="join">
-    <h2>Войти в игру</h2>
+    <h2>Войти</h2>
     <input id="codeInput" placeholder="Код комнаты">
-    <input id="playerIndex" type="number" min="1" placeholder="Номер игрока">
     <button onclick="showRole()">Показать роль</button>
   </div>
 
