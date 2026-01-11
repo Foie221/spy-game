@@ -4,7 +4,7 @@ if (tg) {
   tg.ready();
 }
 
-// ===== DOM элементы =====
+// ===== DOM =====
 const playersInput = document.getElementById("players");
 const spiesInput = document.getElementById("spies");
 const roomCode = document.getElementById("roomCode");
@@ -17,7 +17,7 @@ const join = document.getElementById("join");
 const roleScreen = document.getElementById("roleScreen");
 const roleText = document.getElementById("roleText");
 
-// ===== ДАННЫЕ =====
+// ===== ЛОКАЦИИ =====
 const locations = [
   "Метро Купчино",
   "ТЦ Галерея",
@@ -52,39 +52,43 @@ function createRoom() {
   const spies = Number(spiesInput.value);
 
   if (!players || !spies || spies >= players) {
-    alert("Проверь количество игроков и шпионов");
+    alert("Проверь числа");
     return;
   }
 
-  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const seed = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const code = `SPY-${players}-${spies}-${seed}`;
 
-  localStorage.setItem(code, JSON.stringify({
-    players,
-    spies
-  }));
-
-  roomCode.textContent = "КОД КОМНАТЫ: " + code;
+  roomCode.textContent = "КОД КОМНАТЫ:\n" + code;
   roomCode.classList.remove("hidden");
 }
 
 // ===== ПОКАЗ РОЛИ =====
 function showRole() {
-  const code = codeInput.value.trim().toUpperCase();
+  const raw = codeInput.value.trim().toUpperCase();
   const index = Number(playerIndex.value) - 1;
 
-  const data = JSON.parse(localStorage.getItem(code));
-
-  if (!data || index < 0 || index >= data.players) {
-    alert("Неверный код или номер игрока");
+  const parts = raw.split("-");
+  if (parts.length !== 4 || parts[0] !== "SPY") {
+    alert("Неверный код комнаты");
     return;
   }
 
-  const rand = seededRandom(hashCode(code));
-  const roles = Array(data.players).fill("civil");
+  const players = Number(parts[1]);
+  const spies = Number(parts[2]);
+  const seed = parts[3];
+
+  if (index < 0 || index >= players) {
+    alert("Неверный номер игрока");
+    return;
+  }
+
+  const rand = seededRandom(hashCode(seed));
+  const roles = Array(players).fill("civil");
 
   let placed = 0;
-  while (placed < data.spies) {
-    const i = Math.floor(rand() * data.players);
+  while (placed < spies) {
+    const i = Math.floor(rand() * players);
     if (roles[i] !== "spy") {
       roles[i] = "spy";
       placed++;
@@ -97,9 +101,10 @@ function showRole() {
   join.classList.add("hidden");
   roleScreen.classList.remove("hidden");
 
-  roleText.innerHTML = roles[index] === "spy"
-    ? `Ты <span class="spy">ШПИОН</span>`
-    : `Локация:<br><span class="location">${location}</span>`;
+  roleText.innerHTML =
+    roles[index] === "spy"
+      ? `Ты <span class="spy">ШПИОН</span>`
+      : `Локация:<br><span class="location">${location}</span>`;
 }
 
 // ===== СБРОС =====
