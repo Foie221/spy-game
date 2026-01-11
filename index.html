@@ -12,29 +12,35 @@
 
 <div class="container">
 
-  <!-- СОЗДАНИЕ -->
   <div class="card" id="create">
     <h1>SPY</h1>
 
     <input id="players" type="number" min="3" placeholder="Количество игроков">
     <input id="spies" type="number" min="1" placeholder="Количество шпионов">
 
-    <button onclick="createRoom()">Создать комнату</button>
+    <div class="categories">
+      <div class="cat active" data-cat="SPB">🏛 СПб</div>
+      <div class="cat" data-cat="CLUBS">🎧 Клубы</div>
+      <div class="cat" data-cat="MALLS">🛍 ТЦ</div>
+      <div class="cat" data-cat="FUN">😂 Смешное</div>
+      <div class="cat" data-cat="KUPCHINO">🚇 Купчино</div>
+      <div class="cat" data-cat="SLAVYANKA">🌳 Славянка</div>
+      <div class="cat" data-cat="PUSHKIN">🏰 Пушкин</div>
+      <div class="cat" data-cat="BEAUTY">💄 Бьюти</div>
+      <div class="cat" data-cat="CLOTHES">👗 Одежда</div>
+    </div>
 
+    <button onclick="createRoom()">Создать комнату</button>
     <div class="code hidden" id="roomCode"></div>
   </div>
 
-  <!-- ВХОД -->
   <div class="card" id="join">
     <h2>Войти в игру</h2>
-
     <input id="codeInput" placeholder="Код комнаты">
     <input id="playerIndex" type="number" min="1" placeholder="Номер игрока">
-
     <button onclick="showRole()">Показать роль</button>
   </div>
 
-  <!-- РОЛЬ -->
   <div class="card hidden" id="roleScreen">
     <div id="roleText"></div>
     <button onclick="reset()">Готово</button>
